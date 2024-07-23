@@ -1,4 +1,5 @@
 import { addPropertyControls, ControlType, useIsOnFramerCanvas } from "framer"
+import Fuse from "fuse.js"
 
 /**
  * @framerSupportedLayoutWidth any-prefer-fixed
@@ -6,9 +7,34 @@ import { addPropertyControls, ControlType, useIsOnFramerCanvas } from "framer"
  * @framerDisableUnlink
  */
 
+// Fake data from api
+const data = [
+    {
+        name: "cheeseburger",
+        tag: "Food & drink",
+        embed: `<iframe src="https://embed.3dprobox.com/models/kAJXRgjdFC6fsswRkWR6BPL7?bg_transparent=true" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
+    },
+    {
+        name: "can",
+        tag: "Food & drink",
+        embed: `<iframe src="https://embed.3dprobox.com/models/cLFk9q2dZLW3oSe1CidnVg3f" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
+    },
+    {
+        name: "shoes",
+        tag: "Fashion & Style",
+        embed: `<iframe src="https://embed.3dprobox.com/models/ks7rQ7JdsC1VtXCzrZynP4zv?info_buttons=true" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
+    },
+]
+
+const fuse = new Fuse(data, {
+    keys: ["name", "tag"],
+})
+
 export default function ProBox_3D(props) {
     const {
         embed,
+        toggle,
+        model,
         customize: {
             autoload,
             buttonload,
@@ -20,7 +46,8 @@ export default function ProBox_3D(props) {
         },
     } = props
 
-    if (embed == "") {
+    let iframe = toggle ? embed : fuse.search(model)[0].item.embed
+    if (iframe == "") {
         return (
             <div
                 style={{
@@ -37,12 +64,12 @@ export default function ProBox_3D(props) {
         )
     }
 
-    let src_begin = embed.indexOf('src="') + 5
-    let src_end = embed.indexOf("?")
+    let src_begin = iframe.indexOf('src="') + 5
+    let src_end = iframe.indexOf("?")
     if (src_end === -1) {
-        src_end = embed.indexOf('" title="')
+        src_end = iframe.indexOf('" title="')
     }
-    let raw_source = embed.slice(src_begin, src_end)
+    let raw_source = iframe.slice(src_begin, src_end)
 
     const source =
         raw_source +
@@ -58,7 +85,6 @@ export default function ProBox_3D(props) {
         borderRadius: radius,
     }
 
-    console.log(background_img)
     return (
         <div style={frameStyle}>
             {!bg_toggle ? (
@@ -113,13 +139,13 @@ addPropertyControls(ProBox_3D, {
     },
     user: {
         type: ControlType.String,
-        title: "User",
-        placeholder: "Log in to 3DProBox",
+        title: "User ID",
+        placeholder: "Enter 3DProBox ID",
         hidden(props) {
             return props.toggle
         },
     },
-    models: {
+    model: {
         type: ControlType.String,
         title: "Search",
         placeholder: "Model name",
