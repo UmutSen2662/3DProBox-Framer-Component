@@ -46,6 +46,10 @@ export default function ProBox_3D(props) {
         },
     } = props
 
+    if (!useIsOnFramerCanvas()) {
+        getModel(props)
+    }
+
     let iframe = toggle ? embed : fuse.search(model)[0].item.embed
     if (iframe == "") {
         return (
@@ -192,3 +196,7 @@ addPropertyControls(ProBox_3D, {
         },
     },
 })
+
+async function getModel(props) {
+    console.log(props.user)
+}
