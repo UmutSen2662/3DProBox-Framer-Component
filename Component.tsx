@@ -1,4 +1,5 @@
 import { addPropertyControls, ControlType, useIsOnFramerCanvas } from "framer"
+import { useEffect, useState } from "react"
 import Fuse from "fuse.js"
 
 /**
@@ -8,7 +9,7 @@ import Fuse from "fuse.js"
  */
 
 // Fake data from api
-const data = [
+const fakeModels = [
     {
         name: "cheeseburger",
         tag: "Food & drink",
@@ -26,15 +27,16 @@ const data = [
     },
 ]
 
-const fuse = new Fuse(data, {
+const fuse = new Fuse(fakeModels, {
     keys: ["name", "tag"],
 })
 
 export default function ProBox_3D(props) {
     const {
-        embed,
         toggle,
+        user,
         model,
+        embed,
         customize: {
             autoload,
             buttonload,
@@ -46,11 +48,39 @@ export default function ProBox_3D(props) {
         },
     } = props
 
-    if (!useIsOnFramerCanvas()) {
-        getModel(props)
+    const [data, setData] = useState("")
+
+    let cookie = null
+    const local = JSON.parse(localStorage.getItem("Model"))
+    if (local != null) {
+        if (local.name == model) {
+            cookie = local.embed
+        }
     }
 
-    let iframe = toggle ? embed : fuse.search(model)[0].item.embed
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                if (cookie == null) {
+                    const result = await getModel(user, model)
+                    setData(result.embed)
+                    localStorage.setItem(
+                        "Model",
+                        JSON.stringify({ name: model, embed: result })
+                    )
+                    console.log("fetched data")
+                } else {
+                    setData(cookie.embed)
+                    console.log("used storage")
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error)
+            }
+        }
+        fetchData()
+    }, [user, model])
+
+    let iframe = toggle ? embed : data || ""
     if (iframe == "") {
         return (
             <div
@@ -63,7 +93,9 @@ export default function ProBox_3D(props) {
                     background: "white",
                 }}
             >
-                Please select a model to display
+                {useIsOnFramerCanvas()
+                    ? "Please select a model to display"
+                    : "Model loading"}
             </div>
         )
     }
@@ -123,7 +155,7 @@ export default function ProBox_3D(props) {
 }
 
 ProBox_3D.defaultProps = {
-    toggle: true,
+    toggle: false,
     customize: {
         autoload: true,
         buttonload: false,
@@ -197,6 +229,6 @@ addPropertyControls(ProBox_3D, {
     },
 })
 
-async function getModel(props) {
-    console.log(props.user)
+async function getModel(user, model) {
+    return fuse.search(model)[0].item
 }
