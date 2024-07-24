@@ -54,7 +54,7 @@ export default function ProBox_3D(props) {
     const local = JSON.parse(localStorage.getItem("Model"))
     if (local != null) {
         if (local.name == model) {
-            cookie = local.embed
+            cookie = local
         }
     }
 
