@@ -1,32 +1,4 @@
 import { addPropertyControls, ControlType, useIsOnFramerCanvas } from "framer"
-import { useEffect, useState } from "react"
-import Fuse from "fuse.js"
-import { createClient } from "@supabase/supabase-js"
-
-// Fake data from api
-const fakeModels = [
-    {
-        name: "can",
-        tags: ["Food & drink"],
-        embed: `<iframe src="https://embed.3dprobox.com/models/BH4s36H2wGeFSbgVJChoKe5r?info_buttons=true" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
-    },
-    {
-        name: "ape",
-        tags: ["Animals & Pets", "Art & Abstract"],
-        embed: `<iframe src="https://embed.3dprobox.com/models/JzofnhFkdHQ1kntUn1Vx4bir?info_buttons=true" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
-    },
-    {
-        name: "car",
-        tags: ["Cars & Vehicles"],
-        embed: `<iframe src="https://embed.3dprobox.com/models/U8xaE7Ay7SKvRfqHSjsq8JBw?info_buttons=true" title="3D ProBox Model Viewer" style="width: 100%; height: 100%;" frameborder="0" allow="web-share; xr-spatial-tracking" loading="lazy" scrolling="no" referrerpolicy="origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe>`,
-    },
-]
-
-// A supabase client for interacting with the database
-const supabase = createClient(
-    "https://apapjxotwyeqimuinkwy.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwYXBqeG90d3llcWltdWlua3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE4MjkzMDYsImV4cCI6MjAzNzQwNTMwNn0.AqjEiyoUhyLhkgrEF6NaLrz63eotjGM20XJa-A98_lE"
-)
 
 /**
  * @framerSupportedLayoutWidth any-prefer-fixed
@@ -36,12 +8,8 @@ const supabase = createClient(
  * @framerDisableUnlink
  * Options for framer and the main component function
  */
-export default function ProBox_3D(props) {
+export default function Lite3DProBox(props) {
     const {
-        id,
-        toggle,
-        user,
-        model_name,
         embed,
         customize: {
             autoload,
@@ -62,53 +30,10 @@ export default function ProBox_3D(props) {
         backgroundColor: bg_select == "Color" ? background_clr : "transparent",
         borderRadius: radius,
     }
-    const [model, setModel] = useState("")
 
-    // UseEffect hook to detect cahnges and get the model data (This works at the first load and prop changes)
-    useEffect(() => {
-        async function fetchModel(name) {
-            // Fetch goes here the results will feed into Fuse
-            console.log("Data fetched")
-            const fuse = new Fuse(fakeModels, {
-                keys: ["name", "tags"],
-            })
-            return fuse.search(name)[0].item
-        }
-        async function getModel() {
-            const { data, error } = await supabase
-                .from("user-model")
-                .select("*")
-                .eq("id", id)
-
-            let found = false
-            if (data.length > 0) {
-                if (data[0].name == model_name && data[0].user == user) {
-                    setModel(data[0].embed)
-                    found = true
-                }
-            }
-            if (!found) {
-                const fetched = await fetchModel(model_name)
-                setModel(stripSource(fetched.embed))
-
-                const { data, error } = await supabase
-                    .from("user-model")
-                    .upsert({
-                        id: id,
-                        user: user,
-                        name: model_name,
-                        embed: stripSource(fetched.embed),
-                    })
-                    .select()
-            }
-        }
-        getModel()
-    }, [user, model_name])
-
-    /* Here I check if a model is found and if not I display a loading screen 
-    or a select model message depending on the enviroment */
-    let iframe = toggle ? stripSource(embed) : model || ""
-    if (iframe == "") {
+    // Here I strip the source from the iframe
+    const source = stripSource(embed)
+    if (source == "") {
         return (
             <div style={frameStyle}>
                 {bg_select == "Image" ? (
@@ -198,7 +123,6 @@ export default function ProBox_3D(props) {
         )
     }
 
-    const source = toggle ? stripSource(iframe) : iframe
     return (
         <div style={frameStyle}>
             {bg_select == "Image" ? (
@@ -236,7 +160,7 @@ export default function ProBox_3D(props) {
 }
 
 // Here I configure framer ui elements to customize the model
-ProBox_3D.defaultProps = {
+Lite3DProBox.defaultProps = {
     toggle: false,
     customize: {
         autoload: true,
@@ -247,36 +171,11 @@ ProBox_3D.defaultProps = {
         radius: 0,
     },
 }
-addPropertyControls(ProBox_3D, {
-    toggle: {
-        type: ControlType.Boolean,
-        title: "Toggle",
-        enabledTitle: "Embed",
-        disabledTitle: "User",
-    },
-    user: {
-        type: ControlType.String,
-        title: "User ID",
-        placeholder: "Enter 3DProBox ID",
-        hidden(props) {
-            return props.toggle
-        },
-    },
-    model_name: {
-        type: ControlType.String,
-        title: "Search",
-        placeholder: "Model name",
-        hidden(props) {
-            return props.toggle
-        },
-    },
+addPropertyControls(Lite3DProBox, {
     embed: {
         type: ControlType.String,
         title: "Code",
         placeholder: "Enter embed code",
-        hidden(props) {
-            return !props.toggle
-        },
     },
     customize: {
         type: ControlType.Object,
