@@ -108,10 +108,11 @@ export default function ProBox_3D(props) {
     /* Here I check if a model is found and if not I display a loading screen 
     or a select model message depending on the enviroment */
     let source = toggle ? stripSource(embed) : model || ""
+    console.log(background_img)
     if (source == "") {
         return (
             <div style={frameStyle}>
-                {bg_select == "Image" ? (
+                {bg_select == "Image" && background_img ? (
                     <img
                         src={background_img?.src}
                         srcSet={background_img?.srcSet}
@@ -132,26 +133,39 @@ export default function ProBox_3D(props) {
                         style={{
                             height: "100%",
                             display: "flex",
-                            flexDirection: "column",
                             justifyContent: "center",
                             alignItems: "center",
-                            fontSize: "18px",
                         }}
                     >
                         <div
                             style={{
+                                background: "white",
+                                height: "120px",
+                                width: "300px",
+                                translate: "0px -6px",
+                                position: "absolute",
+                                borderRadius: radius,
+                                opacity: "0.8",
+                            }}
+                        />
+                        <div
+                            style={{
+                                width: "100%",
+                                height: "100%",
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
-                                translate: "0px -10px",
+                                alignItems: "center",
+                                position: "absolute",
+                                fontSize: "22px",
                             }}
                         >
                             <div
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    fontWeight: 800,
                                     fontFamily: "sans-serif",
+                                    fontWeight: 800,
                                 }}
                             >
                                 <svg
@@ -159,7 +173,6 @@ export default function ProBox_3D(props) {
                                     width="48"
                                     height="45"
                                     viewBox="0 0 28 30"
-                                    fill="none"
                                 >
                                     <g clip-path="url(#clip0_1273_4756)">
                                         <path
@@ -197,18 +210,13 @@ export default function ProBox_3D(props) {
                                         </clipPath>
                                     </defs>
                                 </svg>
-                                <span
-                                    style={{
-                                        fontSize: "22px",
-                                        translate: "0px 2px",
-                                    }}
-                                >
-                                    3D
-                                </span>
+                                <span style={{ translate: "0px 2px" }}>3D</span>
                                 <span style={{ fontSize: "24px" }}>ProBox</span>
                             </div>
+                            <p style={{ fontSize: "18px" }}>
+                                Please select a model to display
+                            </p>
                         </div>
-                        Please select a model to display
                     </div>
                 ) : (
                     <svg
@@ -271,7 +279,7 @@ export default function ProBox_3D(props) {
 
     return (
         <div style={frameStyle}>
-            {bg_select == "Image" ? (
+            {bg_select == "Image" && background_img ? (
                 <img
                     src={background_img?.src}
                     srcSet={background_img?.srcSet}
@@ -307,12 +315,12 @@ export default function ProBox_3D(props) {
 
 // Here I configure framer ui elements to customize the model
 ProBox_3D.defaultProps = {
-    toggle: false,
+    toggle: true,
     customize: {
         autoload: true,
         buttonload: false,
         info_buttons: true,
-        bg_select: "Color",
+        bg_select: "Image",
         background_clr: "transparent",
         radius: 0,
     },
