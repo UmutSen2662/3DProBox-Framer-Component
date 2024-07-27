@@ -83,7 +83,7 @@ export default function ProBox_3D(props) {
             let found = false
             if (data.length > 0) {
                 if (data[0].name == model_name && data[0].user == user) {
-                    setModel(data[0].embed)
+                    setModel(data[0].source)
                     found = true
                 }
             }
@@ -97,7 +97,7 @@ export default function ProBox_3D(props) {
                         id: id,
                         user: user,
                         name: model_name,
-                        embed: stripSource(fetched.embed),
+                        source: stripSource(fetched.embed),
                     })
                     .select()
             }
@@ -107,8 +107,8 @@ export default function ProBox_3D(props) {
 
     /* Here I check if a model is found and if not I display a loading screen 
     or a select model message depending on the enviroment */
-    let iframe = toggle ? stripSource(embed) : model || ""
-    if (iframe == "") {
+    let source = toggle ? stripSource(embed) : model || ""
+    if (source == "") {
         return (
             <div style={frameStyle}>
                 {bg_select == "Image" ? (
@@ -132,11 +132,82 @@ export default function ProBox_3D(props) {
                         style={{
                             height: "100%",
                             display: "flex",
+                            flexDirection: "column",
                             justifyContent: "center",
                             alignItems: "center",
                             fontSize: "18px",
                         }}
                     >
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                translate: "0px -10px",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    fontWeight: 800,
+                                    fontFamily: "sans-serif",
+                                }}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="48"
+                                    height="45"
+                                    viewBox="0 0 28 30"
+                                    fill="none"
+                                >
+                                    <g clip-path="url(#clip0_1273_4756)">
+                                        <path
+                                            d="M25.2281 6.38865L14.0962 0.142115L14.0374 0.111206L13.9785 0.142115L2.84668 6.38865L6.8007 8.6298C9.1548 5.98016 11.7509 5.44361 13.8957 5.4701C15.2586 5.46792 16.6069 5.75346 17.8548 6.30852C19.1026 6.86357 20.2226 7.67593 21.1433 8.69383L25.2281 6.38865Z"
+                                            fill="#212936"
+                                        />
+                                        <path
+                                            d="M0.152344 10.3411L0.453147 23.2294V23.2956L0.509818 23.3309L11.4586 29.9042L11.3779 25.0355C8.59006 24.329 6.36456 22.1938 5.40548 20.4274C4.38101 18.5174 3.58541 16.1681 4.42896 12.7456L0.152344 10.3411Z"
+                                            fill="#212936"
+                                        />
+                                        <path
+                                            d="M27.4818 10.3411L27.1809 23.2294V23.2956L27.1243 23.3309L16.1733 29.9042L16.254 25.0355C17.5446 24.748 18.7607 24.1872 19.8223 23.3899C20.8839 22.5928 21.7671 21.5771 22.4139 20.4097C23.4384 18.4997 24.1947 16.0864 23.3512 12.6617L27.4818 10.3411Z"
+                                            fill="#212936"
+                                        />
+                                        <path
+                                            d="M19.8899 12.7655V16.0776L17.4356 17.6188L17.4203 20.9198L14.3447 22.3241V16.0621L19.8899 12.7655Z"
+                                            fill="#212936"
+                                        />
+                                        <path
+                                            d="M16.9649 10.1732L19.9271 11.7255L13.8959 15.4151L8.20459 11.7343L11.0077 10.1798L13.9046 11.7255L16.9649 10.1732Z"
+                                            fill="#212936"
+                                        />
+                                        <path
+                                            d="M8.16321 12.6329L13.4817 16.0775V22.324L10.7898 21.0146L10.7789 17.5171L8.14795 16.0775L8.16321 12.6329Z"
+                                            fill="#212936"
+                                        />
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_1273_4756">
+                                            <rect
+                                                width="27.5"
+                                                height="30"
+                                                fill="white"
+                                            />
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                                <span
+                                    style={{
+                                        fontSize: "22px",
+                                        translate: "0px 2px",
+                                    }}
+                                >
+                                    3D
+                                </span>
+                                <span style={{ fontSize: "24px" }}>ProBox</span>
+                            </div>
+                        </div>
                         Please select a model to display
                     </div>
                 ) : (
@@ -198,7 +269,6 @@ export default function ProBox_3D(props) {
         )
     }
 
-    const source = toggle ? stripSource(iframe) : iframe
     return (
         <div style={frameStyle}>
             {bg_select == "Image" ? (
@@ -314,6 +384,9 @@ addPropertyControls(ProBox_3D, {
 
 // This strips the source from the iframe
 function stripSource(iframe) {
+    if (iframe == null) {
+        return ""
+    }
     let src_begin = iframe.indexOf('src="') + 5
     let src_end = iframe.indexOf("?")
     if (src_end === -1) {
