@@ -107,7 +107,7 @@ export default function ProBox_3D(props) {
 
     /* Here I check if a model is found and if not I display a loading screen 
     or a select model message depending on the enviroment */
-    let source = toggle ? stripSource(embed) : model || ""
+    const source = toggle ? stripSource(embed) : model || ""
     console.log(background_img)
     if (source == "") {
         return (
